@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1610464466 source:e:\projects\c++\mars_lander\main.cpp
+	<iostream>
+	"game.h"
+
+1610464834 e:\projects\c++\mars_lander\game.h
+	"point.h"
+	<bits/stdc++.h>
+
+1610438999 e:\projects\c++\mars_lander\point.h
+	<bits/stdc++.h>
+
