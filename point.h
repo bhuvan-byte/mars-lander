@@ -1,12 +1,18 @@
 #pragma once
 
 #include <bits/stdc++.h>
+#include <fstream>
 #define rep(i,n) for(int i=0;i<(int)(n);i++)
 #define fore(i,a,b) for(i=(a);i<=(int)(b);i++)
 #define ford(i,a,b) for(i=(a);i>=(int)(b);i--)
-#define Cerr if(!debug_cerr) {} else cerr
+std::ofstream outCost_,outPut_; 
+
+bool debug_cerr=1, debug_put=1, debug_cost=1;
+#define outPut if(!debug_put) {} else outPut_
+#define outCost if(!debug_cost) {} else outCost_
+#define Cerr if(!debug_cerr) {} else cerr   
 #define loger(x...) Cerr << '>' << #x << ": "; dbg_out(x);
-using namespace std; bool debug_cerr=1;
+using namespace std;
 void dbg_out() { Cerr << endl; }
 template<typename Head, typename... Tail> void dbg_out(Head H, Tail... T) { Cerr<<H<<", "; dbg_out(T...); }
 template<class A,class B> ostream& operator<<(ostream &os,const pair<A, B> &p){return os<<'('<<p.first<<", "<<p.second<<')';}
@@ -26,12 +32,14 @@ struct Point2D {
     T x, y;
     Point2D() :x(0), y(0) {}
     Point2D(T x, T y) :x(x), y(y) {}
-    Point2D operator+(const Point2D& ot) { return Point2D(x + ot.x, y + ot.y); }
-    Point2D operator-(const Point2D& ot) { return Point2D(x - ot.x, y - ot.y); }
-    Point2D operator*(const float& f) { return Point2D(x * f, y * f); }
+    Point2D operator+(const Point2D& ot) const{ return Point2D(x + ot.x, y + ot.y); }
+    Point2D operator-(const Point2D& ot) const { return Point2D(x - ot.x, y - ot.y); }
+    Point2D operator*(const float& f) const { return Point2D(x * f, y * f); }
     Point2D& operator+=(const Point2D& ot) { x += ot.x; y += ot.y; return *this; }
     Point2D& operator-=(const Point2D& ot) { x -= ot.x; y -= ot.y; return *this; }
-    float abs() { return sqrt(x * x + y * y); }
+    float dot(const Point2D& ot) const{ return x*ot.x+y*ot.y; }
+    inline float abs() const{ return sqrt(x * x + y * y); }
+    inline T abs2() const{ return x*x + y*y ;}
     int angle() {
         int ang = (180 / PI) * atan(y / (x + EPS * (x == 0)));
         if (x < 0) ang += 180;
@@ -41,6 +49,14 @@ struct Point2D {
     inline int relPosition(const Point2D& A,const Point2D& B) const{
         int num=((B.x-A.x)*(y-A.y) - (B.y-A.y)*(x-A.x)) ;
         return (num>0) - (num<0);
+    }
+    inline float perpDistance(const Point2D& p1,const Point2D& p2) const{
+        const Point2D& POS = *this;
+        const Point2D line = p2-p1;
+        const float length2 = line.abs2();
+        const float t =  max(0.0f,min(1.0f,line.dot(POS-p1)/length2 )) ;
+        const Point2D foot = p1 + line*t;
+        return (foot-POS).abs();
     }
 
 

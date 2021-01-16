@@ -34,7 +34,7 @@ public:
         }
         points.insert(points.end(),{Point2D<int>(2*Width,0),Point2D<int>(2*Width,2*Height)});
         surfaceN+=6;
-        cerr<<points;
+        outPut<<"Land:"<<points;
         calcLengths(); // automatically called when taking input
     }
     void calcLengths(){
@@ -44,14 +44,14 @@ public:
             // storing coeffcients in (x2-x1)(y-y1)-(y2-y1)(x-x1) : no longer done
         }
         roadDistances=vector<int> (surfaceN,0);
-        loger(landIndex,points[landIndex]);
+        // loger(landIndex,points[landIndex]);
         for(int i=landIndex+1; i<surfaceN; i++){
             roadDistances[i]=roadDistances[i-1]+lengths[i-1];
         }
         for(int i=landIndex-1; i>=0 ; i--){
             roadDistances[i]=roadDistances[i+1]+lengths[i];
         }
-        loger(roadDistances);
+        // loger(roadDistances);
     }
     bool isInside(const Point2D<int>& pos){
         Point2D<int> out(3*Width,3*Height);
@@ -74,15 +74,18 @@ public:
     int minDistance(const Point2D<int>& pos){
         int mndist=INT_MAX;
         int ind=-1;
-        for(int i=0;i<surfaceN;i++){
-            int dist=(points[i]-pos).abs();
+        for(int i=0;i<surfaceN-1;i++){
+            int dist= pos.perpDistance(points[i],points[i+1]);
             if(dist<mndist){
                 mndist=dist;
                 ind=i;
             }
         }
-        loger(pos,ind,mndist,roadDistances[ind]);
-        return mndist + roadDistances[ind];
+        assert(ind>=0);
+        if(roadDistances[ind+1] < roadDistances[ind]) ind++;
+        int dist_point= (pos-points[ind]).abs();
+        // loger(pos,ind,dist_point,roadDistances[ind]);
+        return dist_point + roadDistances[ind];
     }
 };
 class Ship{
@@ -154,9 +157,6 @@ public:
             arrRotate[i+1] = arrRotate[i] + max(-15,min(15, orotate - arrRotate[i]));
             arrPower[i+1] = arrPower[i] + max(-1,min(opower - arrPower[i], 1 ));
         }
-        freopen("output.txt","w",stderr);
-        cerr<<arrRotate<<arrPower;
-        cerr<<tempRotate<<tempPower;
 
         Point2D<float> tempPos; tempPos = arrPosition[0];
         for(int i=0;i<Num;i++){
@@ -165,8 +165,8 @@ public:
             tempPos += arrVel[i+1];
             arrPosition[i+1] = tempPos;
         }
-        cerr<<arrVel;
-        cerr<<arrPosition;
+        // freopen("output.txt","w",stderr);
+        
         crashIndex=Num;
         vector<bool> crash;
         for(int i=0;i<Num;i++){
@@ -174,8 +174,12 @@ public:
             crash.push_back(b);
             if(b==false && crashIndex==Num) crashIndex=i;
         }
-        loger(crash);
-        loger(crashIndex,arrPosition[crashIndex],arrVel[crashIndex]);
+        outPut<<arrRotate<<arrPower;
+        outPut<<arrVel;
+        outPut<<arrPosition;
+        outPut<<crashIndex<<" ";
+        // loger(crash);
+        // loger(crashIndex,arrPosition[crashIndex],arrVel[crashIndex]);
         
         //fuel left
         finFuel = readLive.fuel;
@@ -188,14 +192,15 @@ public:
         auto finVel=arrVel[crashIndex];
         auto finPos=arrPosition[crashIndex];
         int mndist=land.minDistance(finPos);
-        loger(finVel,finPos,mndist);
         float vx = abs(finVel.x) , vy = abs(finVel.y);
         float velCost = (vx>10 ? 10*vx : vx) + (vy>35 ? 10*vy : vy); 
         // mndist is actually not accurate
         int distCost = mndist>300 ? 4*mndist : mndist; // top priority
-        int fuelCost = (finFuel < 50 ? 30 : 0) - finFuel; 
+        int fuelCost = (finFuel < 50 ? 30 : 0) - finFuel/2; 
         float cost = distCost + velCost + fuelCost;
-        loger(cost,distCost,velCost,fuelCost);
+        // loger(finVel,finPos,mndist);
+        // loger(cost,distCost,velCost,fuelCost);
+        outPut<<cost<<"\n";
         return cost;
     }
 };
