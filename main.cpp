@@ -6,8 +6,11 @@ inline float random(float s=0.0,float e=1.0);
 inline float random(float s /*=0.0*/,float e /*=1.0*/){
     return (rand()%10000)/10000.0 * (e-s) + s ;
 }
+inline int randInt(int s=0,int e=100){
+    return rand()%(e-s) + s;
+}
 
-const int popSize=100;
+const int popSize=40;
 const int geneSize=16;
 struct Gene{
     float cost;
@@ -19,6 +22,23 @@ struct Gene{
         for(int i=0;i<geneSize;i++){
             param[i] += weight*random(-1.0,1.0);
             param[i] = max(-1.0f,min(1.0f,param[i]));
+        }
+    }
+    void crossover(const vector<float>& par1, const vector<float>& par2){
+        for(int i=0;i<geneSize;i++){
+            float ratio= random(-0.2,0.8); // resulting gene closer to par1
+            float pb= par1[i]*(1-ratio) + par2[i]*ratio;
+            pb = max(-1.0f, min(1.0f,pb));
+            param[i]= pb;
+        }
+    }
+    void inherit(const vector<float>& better, float degree){
+        for(int i=0;i<geneSize;i++){
+            if(random()<0.9){
+                param[i] = (1-degree)*better[i] + (degree)*param[i];
+            } else{
+                param[i] = random(-1.0,1.0);
+            }
         }
     }
     bool operator<(const Gene& oth){ return cost<oth.cost;}
@@ -37,8 +57,16 @@ struct Population{
         sort(population.begin(),population.end());
         for(int i=0;i<popSize;i++){
             outCost<<population[i].cost<<" \n"[i==popSize-1];
-            
-            population[i].randomise(random(0,i/(float)popSize));
+
+        }
+        const int s=popSize/10;
+        for(int i=s;i<6*s;i++){
+            population[i].inherit(population[i%s].param, 0.1f * i/s);
+        }
+        for(int i=6*s ;i<popSize;i++){
+            int l=randInt(0,6*s);
+            int r=randInt(0,6*s);
+            population[i].crossover(population[l].param,population[r].param);
         }
     }
 };
@@ -52,12 +80,13 @@ int main()
     srand(time(0));
     outCost_.open("outcost.txt");
     outPut_.open("output.txt");
-    debug_put= debug_cerr=1;
+    debug_cost =debug_put= debug_cerr=1;
+    outPut<<popSize<<"\n";
     Population population;
-    rep(i,100){
-        if(i%10==0) debug_cost=1;
+    rep(i,50){
+        // if(i%5==0) debug_cost=1;
         population.run();
-        debug_cost=0;
+        // debug_cost=0;
     }
 
     cout<<"end";

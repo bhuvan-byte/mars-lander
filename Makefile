@@ -9,8 +9,12 @@
 # @author Jeffrey Tolar
 # @author Eric Huber (edits made for CS Fundamentals MOOC)
 #
-EXE=mars.exe
-OBJS=main.o
+
+EXE = mars
+OBJS = main.o 
+CLEAN_RM =
+
+# include ../../_make/generic.mk
 
 
 # Compiler/linker config and object/depfile directory:
@@ -45,7 +49,7 @@ LDFLAGS += -std=c++14 $(ASANFLAGS)
 
 # Rule for `all` (first/default rule):
 all: $(EXE)
-	$(EXE)
+
 # Rule for linking the final executable:
 # - $(EXE) depends on all object files in $(OBJS)
 # - `patsubst` function adds the directory name $(OBJS_DIR) before every object file
@@ -55,6 +59,7 @@ $(EXE): $(patsubst %.o, $(OBJS_DIR)/%.o, $(OBJS))
 # Ensure .objs/ exists:
 $(OBJS_DIR):
 	@mkdir -p $(OBJS_DIR)
+	# @mkdir -p $(OBJS_DIR)/uiuc
 
 # Rules for compiling source code.
 # - Every object file is required by $(EXE)
@@ -65,6 +70,8 @@ $(OBJS_DIR)/%.o: %.cpp | $(OBJS_DIR)
 # Additional dependencies for object files are included in the clang++
 # generated .d files (from $(DEPFILE_FLAGS)):
 -include $(OBJS_DIR)/*.d
+# -include $(OBJS_DIR)/uiuc/*.d
+
 
 # Standard C++ Makefile rules:
 clean:
@@ -74,3 +81,4 @@ tidy: clean
 	rm -rf doc
 
 .PHONY: all tidy clean
+

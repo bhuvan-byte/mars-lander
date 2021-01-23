@@ -148,8 +148,8 @@ public:
         }
         
         for(int i=0;i<Num;i++){
-            int orotate = max(-90, min(90, (int) (tempRotate[i]*90)) );
-            int opower = max(0, min(4, (int) (tempPower[i]*2 + 2))) ;
+            int orotate = max(-90, min(90, (int) (tempRotate[i]*90*0.5)) );
+            int opower = max(0, min(4, (int) (tempPower[i]*2 + 4))) ;
             
             // opower=2+i%3;   //testing correctness of simulation
             // orotate=-90 + (i*10)%150; // simple test case
@@ -195,7 +195,7 @@ public:
         float vx = abs(finVel.x) , vy = abs(finVel.y);
         float velCost = (vx>10 ? 10*vx : vx) + (vy>35 ? 10*vy : vy); 
         // mndist is actually not accurate
-        int distCost = mndist>300 ? 4*mndist : mndist; // top priority
+        int distCost = mndist>300 ? 4*mndist : mndist/2; // top priority
         int fuelCost = (finFuel < 50 ? 30 : 0) - finFuel/2; 
         float cost = distCost + velCost + fuelCost;
         // loger(finVel,finPos,mndist);

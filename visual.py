@@ -1,42 +1,37 @@
 import matplotlib.pyplot as plt
 from PIL import Image,ImageDraw
-import math
+import math,random
 import pygame
 import time
-Width,Height= 7000,3000
-Scale = 5
-Margin = 500
+from visual_helper import randColor,absolute,transformed,Width,Height,Scale,Margin
+
 sWidth, sHeight= (Width+Margin)//Scale , (Height+Margin) //Scale
 pygame.init()
 
 screen = pygame.display.set_mode((sWidth,sHeight), pygame.RESIZABLE )
 clock = pygame.time.Clock()
 
-def transformed(string : str):
-    x,y = string.split()
-    x = float(x)//Scale 
-    y = (3000-float(y)-300)//Scale
-    return (x,y,)
-def absolute(string : str):
-    x,y = [float(x) for x in string.split()]
-    return math.sqrt(x*x + y*y)
 
-print("before")
 file = open("output.txt")
-print("opened")
-land = tuple ([ transformed(point) for point in file.readline().strip("[], \nLand:").split(',')] )
-pygame.draw.lines(screen,(100,100,100),False,land)
+data = file.readlines()
+
+popSize = int(data[0])
+land = tuple ([ transformed(point) for point in data[1].strip("[], \nLand:").split(',')] )
+last_index=2
+def screen_reset():
+    screen.fill((0,0,0))
+    pygame.draw.lines(screen,pygame.Color('white'),False,land)
+
+def draw_individual(num : int):
+    start = num*5 + last_index
+    rotate=[float(x) for x in data[start].strip('[]\n ,').split(',')]
+    power=[float(x)*25 for x in data[start+1].strip('[]\n ,').split(',')]
+    velocity = tuple ([ absolute(point) for point in data[start+2].strip("[], \n").split(',')] )
+    position = tuple ([ transformed(point) for point in data[start+3].strip("[], \n").split(',')] )
+    crashIndex, cost = [int(float(x)) for x in data[start+4].split()]
 
 
-def takeInput():
-    pygame.event.clear()
-    pygame.display.flip()
-    rotate=[float(x) for x in file.readline().strip('[]\n ,').split(',')]
-    power=[float(x)*25 for x in file.readline().strip('[]\n ,').split(',')]
-    velocity = tuple ([ absolute(point) for point in file.readline().strip("[], \n").split(',')] )
-    position = tuple ([ transformed(point) for point in file.readline().strip("[], \n").split(',')] )
-    crashIndex, cost = [int(float(x)) for x in file.readline().split()]
-    pygame.draw.lines(screen,(100,10,10),False,position,width=2)
+    pygame.draw.lines(screen,randColor(),False,position,width=2)
 
     pygame.draw.circle(screen,pygame.Color('white'),position[crashIndex],1)
     plt.axvline(x=crashIndex)
@@ -51,17 +46,29 @@ def takeInput():
     plt.plot(velocity)
     plt.ylabel('some numbers')
     plt.savefig("plot.png")
+    
+    pygame.display.flip()
+    pygame.event.clear()
+    # end drawl_gen
 
-for i in range(100):
-    time.sleep(1)
-    takeInput()
+def draw_gen(num: int):
+    start = num* popSize
+    for i in range(popSize):
+        draw_individual(start + i)
 
-pygame.display.flip()
 done = False; i=0
+num=pnum =0
+changed =False
 while not done and i<1000: 
     time.sleep(0.1); i+=1
     for event in pygame.event.get():
         if event.type == pygame.QUIT: done = True
         if event.type == pygame.KEYDOWN: 
-            print("keypressed")
             if event.key == pygame.K_ESCAPE: done =True
+            if event.key == pygame.K_RIGHT : num+=1 ; 
+            if event.key == pygame.K_LEFT : num -= 1 if num>0 else 0 ; 
+
+    if(num != pnum):
+        screen_reset()
+        draw_gen(num)
+        pnum=num
