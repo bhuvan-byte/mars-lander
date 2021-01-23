@@ -21,7 +21,7 @@ CLEAN_RM =
 CXX = g++
 LD  = g++
 OBJS_DIR = .objs
-
+SRC_DIR = src
 # -MMD and -MP asks clang++ to generate a .d file listing the headers used in the source code for use in the Make process.
 #   -MMD: "Write a depfile containing user headers"
 #   -MP : "Create phony target for each dependency (other than main file)"
@@ -64,7 +64,7 @@ $(OBJS_DIR):
 # Rules for compiling source code.
 # - Every object file is required by $(EXE)
 # - Generates the rule requiring the .cpp file of the same name
-$(OBJS_DIR)/%.o: %.cpp | $(OBJS_DIR)
+$(OBJS_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) $< -o $@
 
 # Additional dependencies for object files are included in the clang++
@@ -72,6 +72,10 @@ $(OBJS_DIR)/%.o: %.cpp | $(OBJS_DIR)
 -include $(OBJS_DIR)/*.d
 # -include $(OBJS_DIR)/uiuc/*.d
 
+##### Custom rule run and display
+run: all
+	$(EXE)
+	py visual.py
 
 # Standard C++ Makefile rules:
 clean:

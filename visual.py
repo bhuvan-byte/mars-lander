@@ -12,7 +12,7 @@ screen = pygame.display.set_mode((sWidth,sHeight), pygame.RESIZABLE )
 clock = pygame.time.Clock()
 
 
-file = open("output.txt")
+file = open("data/output.txt")
 data = file.readlines()
 
 popSize = int(data[0])
@@ -45,7 +45,7 @@ def draw_individual(num : int):
     plt.plot(power)
     plt.plot(velocity)
     plt.ylabel('some numbers')
-    plt.savefig("plot.png")
+    plt.savefig("data/plot.png")
     
     pygame.display.flip()
     pygame.event.clear()
