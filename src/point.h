@@ -11,7 +11,7 @@ bool debug_cerr=1, debug_put=1, debug_cost=1;
 #define outPut if(!debug_put) {} else outPut_
 #define outCost if(!debug_cost) {} else outCost_
 #define Cerr if(!debug_cerr) {} else cerr   
-#define loger(x...) Cerr << '>' << #x << ": "; dbg_out(x);
+#define loger(...) Cerr << '>' << #__VA_ARGS__ << ": "; dbg_out(__VA_ARGS__);
 using namespace std;
 void dbg_out() { Cerr << endl; }
 template<typename Head, typename... Tail> void dbg_out(Head H, Tail... T) { Cerr<<H<<", "; dbg_out(T...); }

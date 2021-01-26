@@ -45,7 +45,8 @@ def draw_individual(num : int):
     plt.plot(power)
     plt.plot(velocity)
     plt.ylabel('some numbers')
-    plt.savefig("data/plot.png")
+    # saving the figure in a core inner loop... Worst idea ever
+    # plt.savefig("data/plot.png") 
     
     pygame.display.flip()
     pygame.event.clear()
@@ -55,9 +56,11 @@ def draw_gen(num: int):
     start = num* popSize
     for i in range(popSize):
         draw_individual(start + i)
+    plt.savefig("data/plot.png")
 
 done = False; i=0
-num=pnum =0
+num =0
+pnum =1
 changed =False
 while not done and i<1000: 
     time.sleep(0.1); i+=1

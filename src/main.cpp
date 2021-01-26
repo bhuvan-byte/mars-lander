@@ -1,6 +1,7 @@
 #include <iostream>
 #include "point.h"
 #include "game.h"
+
 using namespace std;
 inline float random(float s=0.0,float e=1.0);
 inline float random(float s /*=0.0*/,float e /*=1.0*/){
@@ -34,10 +35,10 @@ struct Gene{
     }
     void inherit(const vector<float>& better, float degree){
         for(int i=0;i<geneSize;i++){
-            if(random()<0.9){
-                param[i] = (1-degree)*better[i] + (degree)*param[i];
+            if(random()<0.9 || true){
+                param[i] = (1-degree)*better[i] + (degree)* random(-1.0,1.0);
             } else{
-                param[i] = random(-1.0,1.0);
+                // param[i] = random(-1.0,1.0);
             }
         }
     }
@@ -61,7 +62,7 @@ struct Population{
         }
         const int s=popSize/10;
         for(int i=s;i<6*s;i++){
-            population[i].inherit(population[i%s].param, 0.1f * i/s);
+            population[i].inherit(population[i%s].param, 0.01f * i/s);
         }
         for(int i=6*s ;i<popSize;i++){
             int l=randInt(0,6*s);
@@ -76,7 +77,7 @@ int main()
     // Point2D<int> p1(10,20);
     // Point2D<float> p2;
     // loger(p2); p2=p1; loger(p2);
-
+    
     srand(time(0));
     outCost_.open("data/outcost.txt");
     outPut_.open("data/output.txt");
