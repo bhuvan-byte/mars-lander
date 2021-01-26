@@ -24,8 +24,8 @@ def screen_reset():
 
 def draw_individual(num : int):
     start = num*5 + last_index
-    rotate=[float(x) for x in data[start].strip('[]\n ,').split(',')]
-    power=[float(x)*25 for x in data[start+1].strip('[]\n ,').split(',')]
+    rotate=[float(x) for x in data[start].strip('[]\n ,arrRotate=').split(',')]
+    power=[float(x)*25 for x in data[start+1].strip('[]\n ,arrPower=').split(',')]
     velocity = tuple ([ absolute(point) for point in data[start+2].strip("[], \n").split(',')] )
     position = tuple ([ transformed(point) for point in data[start+3].strip("[], \n").split(',')] )
     crashIndex, cost = [int(float(x)) for x in data[start+4].split()]

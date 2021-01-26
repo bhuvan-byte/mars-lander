@@ -77,14 +77,14 @@ int main()
     // Point2D<int> p1(10,20);
     // Point2D<float> p2;
     // loger(p2); p2=p1; loger(p2);
-    
+
     srand(time(0));
     outCost_.open("data/outcost.txt");
     outPut_.open("data/output.txt");
     debug_cost =debug_put= debug_cerr=1;
     outPut<<popSize<<"\n";
     Population population;
-    rep(i,50){
+    rep(i,20){
         // if(i%5==0) debug_cost=1;
         population.run();
         // debug_cost=0;

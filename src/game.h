@@ -148,8 +148,8 @@ public:
         }
         
         for(int i=0;i<Num;i++){
-            int orotate = max(-90, min(90, (int) (tempRotate[i]*90*0.5)) );
-            int opower = max(0, min(4, (int) (tempPower[i]*2 + 4))) ;
+            int orotate = clamp( (int) (tempRotate[i]*90*0.5), -90,90);
+            int opower = clamp( (int) (tempPower[i]*2 + 4) , 0, 4) ;
             
             // opower=2+i%3;   //testing correctness of simulation
             // orotate=-90 + (i*10)%150; // simple test case
@@ -158,11 +158,11 @@ public:
             arrPower[i+1] = arrPower[i] + max(-1,min(opower - arrPower[i], 1 ));
         }
 
-        Point2D<float> tempPos; tempPos = arrPosition[0];
+        Point2D<float> tempPos; tempPos = arrPosition[0]; //tempPos is float contrast to arrPosition
         for(int i=0;i<Num;i++){
-            arrVel[i+1].x=arrVel[i].x - arrPower[i+1]*sin(arrRotate[i]*PI/180);
-            arrVel[i+1].y=arrVel[i].y - 3.711 + arrPower[i+1]*cos(arrRotate[i]*PI/180);
-            tempPos += arrVel[i+1];
+            arrVel[i+1].x=arrVel[i].x - arrPower[i]*sin(arrRotate[i]*PI/180);
+            arrVel[i+1].y=arrVel[i].y - 3.711 + arrPower[i]*cos(arrRotate[i]*PI/180);
+            tempPos += (arrVel[i]+arrVel[i+1])*0.5;
             arrPosition[i+1] = tempPos;
         }
         // freopen("output.txt","w",stderr);
@@ -174,7 +174,8 @@ public:
             crash.push_back(b);
             if(b==false && crashIndex==Num) crashIndex=i;
         }
-        outPut<<arrRotate<<arrPower;
+        outPut<<"arrRotate="<<arrRotate;
+        outPut<<"arrPower="<<arrPower;
         outPut<<arrVel;
         outPut<<arrPosition;
         outPut<<crashIndex<<" ";
