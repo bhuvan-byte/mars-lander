@@ -54,11 +54,10 @@ struct Point2D {
         const Point2D& POS = *this;
         const Point2D line = p2-p1;
         const float length2 = line.abs2();
-        const float t =  max(0.0f,min(1.0f,line.dot(POS-p1)/length2 )) ;
+        const float t = clamp(line.dot(POS-p1)/length2, 0.0f,1.0f);
         const Point2D foot = p1 + line*t;
         return (foot-POS).abs();
     }
-
 
     friend std::ostream& operator<<(std::ostream& stream, Point2D& out) {
         stream << out.x << " " << out.y;
@@ -73,5 +72,17 @@ struct Point2D {
         x=oth.x;
         y=oth.y;
         return *this;
+    }
+};
+
+
+struct Timer {
+    std::chrono::time_point<std::chrono::steady_clock> starttime, endtime;
+    std::chrono::duration<float> duration;
+    Timer() { starttime = std::chrono::steady_clock::now(); }
+    ~Timer() {
+        endtime = std::chrono::steady_clock::now();
+        duration = endtime - starttime;
+        std::cerr << "Timer took " << duration.count()<< "s"<<std::endl;
     }
 };

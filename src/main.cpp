@@ -22,14 +22,14 @@ struct Gene{
     void randomise(float weight){
         for(int i=0;i<geneSize;i++){
             param[i] += weight*random(-1.0,1.0);
-            param[i] = max(-1.0f,min(1.0f,param[i]));
+            param[i] = clamp(param[i],-1.0f,1.0f);
         }
     }
     void crossover(const vector<float>& par1, const vector<float>& par2){
         for(int i=0;i<geneSize;i++){
             float ratio= random(-0.2,0.8); // resulting gene closer to par1
             float pb= par1[i]*(1-ratio) + par2[i]*ratio;
-            pb = max(-1.0f, min(1.0f,pb));
+            pb = clamp(pb,-1.0f,1.0f);
             param[i]= pb;
         }
     }
@@ -73,21 +73,22 @@ struct Population{
 };
 
 int main()
-{
+{Timer t_;
     // Point2D<int> p1(10,20);
     // Point2D<float> p2;
     // loger(p2); p2=p1; loger(p2);
-
+    
     srand(time(0));
     outCost_.open("data/outcost.txt");
     outPut_.open("data/output.txt");
-    debug_cost =debug_put= debug_cerr=1;
+    // debug_cost =debug_put= debug_cerr=0;
     outPut<<popSize<<"\n";
     Population population;
-    rep(i,20){
-        // if(i%5==0) debug_cost=1;
+    const int Iterations = 101;
+    rep(i,Iterations){
+        if(i%20==0)     debug_cost =debug_put= debug_cerr=1;
         population.run();
-        // debug_cost=0;
+        debug_cost =debug_put= debug_cerr=0;
     }
 
     cout<<"end";

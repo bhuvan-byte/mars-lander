@@ -16,7 +16,7 @@ public:
     int landIndex;
     vector<Point2D<int>> points;
     vector<Point2D<int>> lineCoeff;
-    vector<int> lengths,roadDistances;
+    vector<int> lengths,preRoadArr;
     void takeInput(){
         freopen("data/input.txt","r",stdin);
         landIndex = -1;
@@ -43,15 +43,15 @@ public:
             lengths.push_back(dist);
             // storing coeffcients in (x2-x1)(y-y1)-(y2-y1)(x-x1) : no longer done
         }
-        roadDistances=vector<int> (surfaceN,0);
+        preRoadArr=vector<int> (surfaceN,0);
         // loger(landIndex,points[landIndex]);
         for(int i=landIndex+1; i<surfaceN; i++){
-            roadDistances[i]=roadDistances[i-1]+lengths[i-1];
+            preRoadArr[i]=preRoadArr[i-1]+lengths[i-1];
         }
         for(int i=landIndex-1; i>=0 ; i--){
-            roadDistances[i]=roadDistances[i+1]+lengths[i];
+            preRoadArr[i]=preRoadArr[i+1]+lengths[i];
         }
-        // loger(roadDistances);
+        // loger(preRoadArr);
     }
     bool isInside(const Point2D<int>& pos){
         Point2D<int> out(3*Width,3*Height);
@@ -71,7 +71,8 @@ public:
         }
         return ans;
     }
-    int minDistance(const Point2D<int>& pos){
+    int roadDistance(const Point2D<int>& pos){
+        // works fine enough. tested!
         int mndist=INT_MAX;
         int ind=-1;
         for(int i=0;i<surfaceN-1;i++){
@@ -82,11 +83,26 @@ public:
             }
         }
         assert(ind>=0);
-        if(roadDistances[ind+1] < roadDistances[ind]) ind++;
+        if(preRoadArr[ind+1] < preRoadArr[ind]) ind++;
         int dist_point= (pos-points[ind]).abs();
-        // loger(pos,ind,dist_point,roadDistances[ind]);
-        return dist_point + roadDistances[ind];
+        // loger(pos,ind,dist_point,preRoadArr[ind]);
+        return dist_point + preRoadArr[ind];
     }
+    int collisionDist(const Point2D<int>& pos){
+        // works fine enough tested  .
+        int mndist=INT_MAX;
+        int ind=-1;
+        for(int i=0;i<surfaceN-1;i++){
+            int dist= pos.perpDistance(points[i],points[i+1]);
+            if(dist<mndist){
+                mndist=dist;
+                ind=i;
+            }
+        }
+        assert(ind>=0);
+        return mndist;
+    }
+    
 };
 class Ship{
 public:
@@ -115,7 +131,7 @@ public:
     void takeInput(){
         land.takeInput();
         readLive.takeInput();
-        Num = readLive.fuel/3 +1;
+        Num = readLive.fuel/4 +1;
         arrPower.resize(Num+1);
         arrRotate.resize(Num+1);
         arrPosition.resize(Num+1);
@@ -131,8 +147,9 @@ public:
             }
         }
     }
-    void simulate(const vector<float>& param){
+    void calcOut(const vector<float>& param){
         //param length should be 16; 0-7 for sin; 8-15 for cos 
+        
         int len=param.size()/2;
         vector<float> sinParam(param.begin(),param.begin()+len);
         vector<float> cosParam(param.begin()+len,param.end());
@@ -157,6 +174,9 @@ public:
             arrRotate[i+1] = arrRotate[i] + max(-15,min(15, orotate - arrRotate[i]));
             arrPower[i+1] = arrPower[i] + max(-1,min(opower - arrPower[i], 1 ));
         }
+    }
+    void simulate(const vector<float>& param){
+        calcOut(param);
 
         Point2D<float> tempPos; tempPos = arrPosition[0]; //tempPos is float contrast to arrPosition
         for(int i=0;i<Num;i++){
@@ -169,14 +189,18 @@ public:
         
         crashIndex=Num;
         vector<bool> crash;
+        vector<float> collDist;
         for(int i=0;i<Num;i++){
             bool b=land.isInside(arrPosition[i]);
             crash.push_back(b);
-            if(b==false && crashIndex==Num) crashIndex=i;
+            // float mndist=land.collisionDist(arrPosition[i]);
+            // collDist.push_back(mndist);
+            if(b==false && crashIndex==Num ) crashIndex=i;
         }
         outPut<<"arrRotate="<<arrRotate;
         outPut<<"arrPower="<<arrPower;
         outPut<<arrVel;
+        // outPut<<collDist;
         outPut<<arrPosition;
         outPut<<crashIndex<<" ";
         // loger(crash);
@@ -192,7 +216,7 @@ public:
         simulate(param);
         auto finVel=arrVel[crashIndex];
         auto finPos=arrPosition[crashIndex];
-        int mndist=land.minDistance(finPos);
+        int mndist=land.roadDistance(finPos); // earlier mindist was calculated only once for performance 
         float vx = abs(finVel.x) , vy = abs(finVel.y);
         float velCost = (vx>10 ? 10*vx : vx) + (vy>35 ? 10*vy : vy); 
         // mndist is actually not accurate

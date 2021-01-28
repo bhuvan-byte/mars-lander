@@ -68,8 +68,10 @@ while not done and i<1000:
         if event.type == pygame.QUIT: done = True
         if event.type == pygame.KEYDOWN: 
             if event.key == pygame.K_ESCAPE: done =True
-            if event.key == pygame.K_RIGHT : num+=1 ; 
+            if event.key == pygame.K_RIGHT : num+=1 
             if event.key == pygame.K_LEFT : num -= 1 if num>0 else 0 ; 
+            if event.key == pygame.K_d : num+=5 
+            if event.key == pygame.K_a : num-=5 if num>5 else 0
 
     if(num != pnum):
         screen_reset()
