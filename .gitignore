@@ -1,3 +1,4 @@
 __pycache__/
 .objs/
 .vscode/
+data/output.txt
