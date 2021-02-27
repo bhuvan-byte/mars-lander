@@ -11,7 +11,7 @@ inline int randInt(int s=0,int e=100){
     return rand()%(e-s) + s;
 }
 
-const int popSize=60;
+const int popSize=20;
 const int geneSize=20;
 struct Gene{
     float cost;
@@ -64,7 +64,7 @@ struct Population{
         float factorRand=clamp(population[0].cost/20000.0f,0.01f,0.08f);
         for(int i=s;i<6*s;i++){
             if(random()>0.9) continue;
-            population[i].inherit(population[i%s].param, factorRand * i/(1.8*s));
+            population[i].inherit(population[i%s].param, factorRand * i/(2*s));
         }
         for(int i=6*s ;i<popSize;i++){
             int l=randInt(0,6*s);
@@ -86,7 +86,7 @@ int main()
     // debug_cost =debug_put= debug_cerr=0;
     outPut<<popSize<<"\n";
     Population population;
-    const int Iterations = 41;
+    const int Iterations = 101;
     rep(i,Iterations){
         if(i%1==0)     debug_cost =debug_put= debug_cerr=1;
         population.run();
