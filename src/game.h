@@ -9,7 +9,7 @@
 
 const int Width=7000;
 const int Height=3000;
-const int FourierN=5;
+const int FourierN=6;
 class Land{
 public:
     int surfaceN;
@@ -21,7 +21,7 @@ public:
         freopen("data/input.txt","r",stdin);
         landIndex = -1;
         cin >> surfaceN;
-        points = {Point2D<int>(2*Width,2*Height),Point2D<int>(-Width,2*Height),Point2D<int>(-Width,0)};
+        points = {Point2D<int>(1.1*Width,1.1*Height),Point2D<int>(-0.1*Width,1.1*Height),Point2D<int>(-0.1*Width,0)};
         Point2D<int> curr,prev(-1,-1);
         for (int i = 0; i < surfaceN; i++) {
             cin>>curr;
@@ -32,7 +32,7 @@ public:
             points.push_back(curr);
             prev=curr;
         }
-        points.insert(points.end(),{Point2D<int>(2*Width,0),Point2D<int>(2*Width,2*Height)});
+        points.insert(points.end(),{Point2D<int>(1.1*Width,0),Point2D<int>(1.1*Width,1.1*Height)});
         surfaceN+=6;
         outPut<<"Land:"<<points;
         calcLengths(); // automatically called when taking input
@@ -127,7 +127,7 @@ public:
     int Num;
     int crashIndex=-1;
     int finFuel=-1;
-
+    int minCollDist=-1;
     void takeInput(){
         land.takeInput();
         readLive.takeInput();
@@ -149,7 +149,7 @@ public:
     }
     void calcOut(const vector<float>& param){
         //param length should be 16; 0-7 for sin; 8-15 for cos 
-        
+        //calculates power and rotate values for output
         int len=param.size()/2;
         vector<float> sinParam(param.begin(),param.begin()+len);
         vector<float> cosParam(param.begin()+len,param.end());
@@ -165,7 +165,8 @@ public:
         }
         
         for(int i=0;i<Num;i++){
-            int orotate = clamp( (int) (tempRotate[i]*90*0.5), -90,90);
+            // reduced to 0.25 since FourierN=6
+            int orotate = clamp( (int) (tempRotate[i]*90*0.27), -90,90); 
             int opower = clamp( (int) (tempPower[i]*2 + 4) , 0, 4) ;
             
             // opower=2+i%3;   //testing correctness of simulation
@@ -197,6 +198,14 @@ public:
             // collDist.push_back(mndist);
             if(b==false && crashIndex==Num ) crashIndex=i;
         }
+        minCollDist=10000;
+        for(int i=0; i< crashIndex-11 ;i++){ // 8 turns before crashing
+            minCollDist=min(minCollDist,land.collisionDist(arrPosition[i]));
+        }
+        for(int i=0;i<3;i++){ // landing angle should be zero
+            arrRotate[crashIndex-i]=0;
+            arrPower[crashIndex-i] = 4;
+        }
         outPut<<"arrRotate="<<arrRotate;
         outPut<<"arrPower="<<arrPower;
         outPut<<arrVel;
@@ -216,14 +225,27 @@ public:
         simulate(param);
         auto finVel=arrVel[crashIndex];
         auto finPos=arrPosition[crashIndex];
-        int mndist=land.roadDistance(finPos); // earlier mindist was calculated only once for performance 
+        int roadDist=land.roadDistance(finPos); // earlier mindist was calculated only once for performance 
         float vx = abs(finVel.x) , vy = abs(finVel.y);
-        float velCost = (vx>10 ? 10*vx : vx) + (vy>35 ? 10*vy : vy); 
-        // mndist is actually not accurate
-        int distCost = mndist>300 ? 4*mndist : mndist/2; // top priority
-        int fuelCost = (finFuel < 50 ? 30 : 0) - finFuel/2; 
-        float cost = distCost + velCost + fuelCost;
-        // loger(finVel,finPos,mndist);
+        float velCost=0,distCost=0,collCost=0,fuelCost=0;
+        // roadDist is actually not accurate
+        if(roadDist> 400){
+            distCost=2*roadDist;
+            // collCost=1333- 4*clamp(minCollDist,0,333) ;//+ 200-2*clamp(minCollDist,0,100);
+            collCost =1000- 3*clamp(minCollDist,0,333) + (int) pow(300-clamp(minCollDist,0,300),2) / 100;
+        }else{
+            distCost=roadDist/2;
+            velCost=(vx>10 ? 25*vx : vx) + (vy>35 ? 15*vy : vy);
+            // collCost=1000- 3*clamp(minCollDist,0,333);
+            collCost =333- clamp(minCollDist,0,333) + (int) pow(300-clamp(minCollDist,0,300),2) / 100;
+            fuelCost=(finFuel < 50 ? (50-finFuel)*10 : (50-finFuel)/5); 
+        }
+        // float velCost = (vx>10 ? 10*vx : vx) + (vy>35 ? 10*vy : vy); 
+        // int distCost = roadDist>300 ? 4*roadDist : roadDist/3; // top priority
+        // int collCost = roadDist>300 ? -minCollDist/2 : -minCollDist; // priority
+        // int fuelCost = (finFuel < 50 ? 30 : 0) - finFuel/2; 
+        float cost = distCost + velCost + fuelCost + collCost ;
+        // loger(finVel,finPos,roadDist);
         // loger(cost,distCost,velCost,fuelCost);
         outPut<<cost<<"\n";
         return cost;

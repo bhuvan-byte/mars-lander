@@ -1,6 +1,3 @@
 __pycache__/
 .objs/
 .vscode/
-data/output.txt
-data/outcost.txt
-data/plot.png

@@ -1,7 +1,7 @@
+#pragma GCC optimize("O2")
 #include <iostream>
 #include "point.h"
 #include "game.h"
-
 using namespace std;
 inline float random(float s=0.0,float e=1.0);
 inline float random(float s /*=0.0*/,float e /*=1.0*/){
@@ -11,8 +11,8 @@ inline int randInt(int s=0,int e=100){
     return rand()%(e-s) + s;
 }
 
-const int popSize=40;
-const int geneSize=16;
+const int popSize=60;
+const int geneSize=20;
 struct Gene{
     float cost;
     vector<float> param;
@@ -35,10 +35,10 @@ struct Gene{
     }
     void inherit(const vector<float>& better, float degree){
         for(int i=0;i<geneSize;i++){
-            if(random()<0.9 || true){
+            if(random()<0.95 ){
                 param[i] = (1-degree)*better[i] + (degree)* random(-1.0,1.0);
             } else{
-                // param[i] = random(-1.0,1.0);
+                param[i] = random(-1.0,1.0);
             }
         }
     }
@@ -61,8 +61,10 @@ struct Population{
 
         }
         const int s=popSize/10;
+        float factorRand=clamp(population[0].cost/20000.0f,0.01f,0.08f);
         for(int i=s;i<6*s;i++){
-            population[i].inherit(population[i%s].param, 0.01f * i/s);
+            if(random()>0.9) continue;
+            population[i].inherit(population[i%s].param, factorRand * i/(1.8*s));
         }
         for(int i=6*s ;i<popSize;i++){
             int l=randInt(0,6*s);
@@ -84,9 +86,9 @@ int main()
     // debug_cost =debug_put= debug_cerr=0;
     outPut<<popSize<<"\n";
     Population population;
-    const int Iterations = 101;
+    const int Iterations = 41;
     rep(i,Iterations){
-        if(i%20==0)     debug_cost =debug_put= debug_cerr=1;
+        if(i%1==0)     debug_cost =debug_put= debug_cerr=1;
         population.run();
         debug_cost =debug_put= debug_cerr=0;
     }

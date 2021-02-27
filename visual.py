@@ -39,7 +39,7 @@ def draw_individual(num : int):
     font = pygame.font.Font('freesansbold.ttf', 15)
     text = font.render(str(cost), True,pygame.Color('white'))
     textRect = text.get_rect()
-    screen.blit(text,position[crashIndex+4])
+    screen.blit(text,position[crashIndex+4 if crashIndex+4 <len(position) else crashIndex])
 
     plt.plot(rotate)
     plt.plot(power)
